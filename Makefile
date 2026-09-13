@@ -1,8 +1,12 @@
 up:
-	docker compose up -d --build
+	docker compose up -d
 
-bash: up
+bash:
+	docker compose up -d
 	docker compose exec webserv bash
+
+re:
+	docker compose up -d --build
 
 down:
 	docker compose down
@@ -10,4 +14,7 @@ down:
 logs:
 	docker compose logs -f
 
-.PHONY: up bash down logs
+clean:
+	docker compose down --rmi all --volumes --remove-orphans
+
+.PHONY: up bash re down logs clean
