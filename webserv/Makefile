@@ -5,6 +5,8 @@ CXXFLAGS	:= -Wall -Wextra -Werror -std=c++98
 INCFLAGS	:= -Iinclude
 
 SRCDIR		:= src
+OBJDIR		:= obj
+
 SRCS		:= main.cpp \
 			   $(SRCDIR)/location.cpp \
 			   $(SRCDIR)/server.cpp \
@@ -13,19 +15,24 @@ SRCS		:= main.cpp \
 			   $(SRCDIR)/HTTP_Requests.cpp \
 			   $(SRCDIR)/MethodHandler.cpp
 
-OBJS		:= $(SRCS:.cpp=.o)
+OBJS		:= $(addprefix $(OBJDIR)/,$(notdir $(SRCS:.cpp=.o)))
 DEPS		:= $(wildcard include/*.hpp)
+
+vpath %.cpp . $(SRCDIR)
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(INCFLAGS) $(OBJS) -o $(NAME)
 
-%.o: %.cpp $(DEPS)
+$(OBJDIR)/%.o: %.cpp $(DEPS) | $(OBJDIR)
 	$(CXX) $(CXXFLAGS) $(INCFLAGS) -c $< -o $@
 
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
+
 clean:
-	rm -f $(OBJS)
+	rm -rf $(OBJDIR)
 
 fclean: clean
 	rm -f $(NAME)
