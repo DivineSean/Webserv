@@ -34,6 +34,7 @@ class client
         void                                setpFd(struct pollfd fd);
         void                                setMap(std::map <std::string, std::string> leMap);
         std::map <std::string, std::string> getMap() const;
+        std::map <std::string, std::string> &mapRef();
         void                                openFileSuccess(std::string Path);
         void                                Parse_POST(std::string Path, std::string request_body);
         void                                process_chunked(std::string &chunk);

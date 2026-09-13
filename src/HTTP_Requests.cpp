@@ -1,5 +1,6 @@
 #include "server.hpp"
 #include "client.hpp"
+#include "MethodHandler.hpp"
 #include <csignal>
 
 int track_path(std::string root, std::string path)
@@ -999,87 +1000,12 @@ void  client:: requestParse(struct pollfd &p)
         // throw server->code404; // TO REMOVE 
         // if (ParseHostHeader(line_per_line, buffer) == "400")
         //     throw server->code400;
-        if (map["HTTP_Request"] == "GET")
+        AMethodHandler *handler = HandlerFactory::create(map["HTTP_Request"]);
+        if (handler)
         {
-           
-            openFileSuccess(map["Request_Path"]);
-            p.events = POLLOUT;
-            return ;
-                
+            handler->handle(*this, p);
+            delete handler;
         }
-        else if (map["HTTP_Request"] == "DELETE")
-        {
-            Parse_DELETE(map["Request_Path"]);
-            Response.isDone =true;
-            p.events = POLLOUT;
-            return ;
-        }
-        else if (map["HTTP_Request"] == "POST")
-        {
-            if (map["Transfer-Encoding"] != "chunked" && !map["Transfer-Encoding"].empty())
-            {
-                if (map["Content-Length"].empty())
-                {
-                    map["Status_Code"] = server->code411;
-                }
-                else if ((atol_l(map["Content-Length"]) == -1))
-                {
-                    if (atol_l(map["Content-Length"]) == -1)
-                        map["Status_Code"] = server->code400;
-                    else
-                        map["Status_Code"] = server->code413;
-                }
-                else
-                    map["Status_Code"] = server->code501;
-                Response.isDone = true;
-                p.events = POLLOUT;
-                return ;
-            }
-            else if (map["Transfer-Encoding"].empty() && map["Content-Length"].empty())
-            {
-                map["Status_Code"] = server->code411;
-                Response.isDone = true;
-                p.events = POLLOUT;
-                return ;
-            }
-            bool is = false;
-            if (Request.isBody == false)
-            {
-                
-                Parse_POST(map["Request_Path"], Request.Body);
-                
-                if (map["Status_Code"] != server->code200 && map["Status_Code"] != server->code201)
-                {
-                    
-                    if (filefd != 0)
-                        close(filefd);
-                    Response.isDone = true;
-                    p.events = POLLOUT;
-                }
-                is = true;
-               
-            }
-            if (Request.isBody == true)
-            {
-                if (is != true)
-                {
-                    int f = write(filefd, Request.Body.c_str(), Request.Body.size());
-                    if (f == -1)
-                    {
-                        map["Status_Code"] = server->code500;
-                        Response.isDone = true;
-                        p.events = POLLOUT;
-                    }
-                    else if (f == 0)
-                        ;
-                }
-                close(filefd);
-                Response.isDone = true;
-                p.events = POLLOUT;
-            }
-            // Call Parse_POST
-            //COntent length    
-        } 
     }
     // map["Status_Code"] = server->code200;
     // std::cout << "200 OK" << std::endl ;

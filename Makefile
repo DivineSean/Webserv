@@ -1,31 +1,51 @@
-NAME = webserv
-SRC = main.cpp location.cpp server.cpp webserv.cpp runServer.cpp HTTP_Requests.cpp
-OBJS = $(SRC:.cpp=.o)
-CFLAGS = -Wall -Wextra -Werror -std=c++98
-INC = location.hpp server.hpp webserv.hpp client.hpp request.hpp response.hpp
-R        := $(shell tput -Txterm setaf 1)
-G        := $(shell tput -Txterm setaf 2)
-Y       := $(shell tput -Txterm setaf 3)
+NAME		:= webserv
+
+CXX			:= c++
+CXXFLAGS	:= -Wall -Wextra -Werror -std=c++98
+INCFLAGS	:= -Iinclude
+
+SRCDIR		:= src
+SRCS		:= main.cpp \
+			   $(SRCDIR)/location.cpp \
+			   $(SRCDIR)/server.cpp \
+			   $(SRCDIR)/webserv.cpp \
+			   $(SRCDIR)/runServer.cpp \
+			   $(SRCDIR)/HTTP_Requests.cpp \
+			   $(SRCDIR)/MethodHandler.cpp
+
+OBJS		:= $(SRCS:.cpp=.o)
+DEPS		:= $(wildcard include/*.hpp)
+
+# ---- Build (run natively, or inside the container) ------------------------
 
 all: $(NAME)
-	@echo $(G) "ALL functions are done!"
 
 $(NAME): $(OBJS)
-	@echo $(Y) Compiling: $< ... Done!
-	@c++ $(CFLAGS) $(OBJS) -o $@
+	$(CXX) $(CXXFLAGS) $(INCFLAGS) $(OBJS) -o $(NAME)
 
-%.o: %.cpp $(INC)
-	@echo $(Y) Compiling: $< ... Done!
-	@c++ $(CFLAGS) -c $< -o $(<:.cpp=.o)
+%.o: %.cpp $(DEPS)
+	$(CXX) $(CXXFLAGS) $(INCFLAGS) -c $< -o $@
 
 clean:
-	@echo $(R) Cleaned
-	@rm -f $(OBJS)
+	rm -f $(OBJS)
 
 fclean: clean
-	@echo $(R) Fully cleaned
-	@rm -f $(NAME)
+	rm -f $(NAME)
 
 re: fclean all
 
-.PHONY: clean fclean re all
+# ---- Docker dev environment (run on the host) -----------------------------
+
+up:
+	docker compose up -d --build
+
+bash: up
+	docker compose exec webserv bash
+
+down:
+	docker compose down
+
+logs:
+	docker compose logs -f
+
+.PHONY: all clean fclean re up bash down logs

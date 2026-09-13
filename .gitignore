@@ -1,0 +1,7 @@
+# Build artifacts
+*.o
+webserv
+
+# Local run files
+docker.cfg
+www/get_Cookie.html

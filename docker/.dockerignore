@@ -1,0 +1,4 @@
+# The image copies nothing in (source is bind-mounted at runtime), so keep the
+# build context empty for fast builds.
+*
+!Dockerfile

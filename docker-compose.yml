@@ -1,0 +1,15 @@
+services:
+  webserv:
+    build: ./docker
+    image: webserv-dev
+    container_name: webserv-dev
+    volumes:
+      - ./:/webserv
+    working_dir: /webserv
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+      - "8082:8082"
+      - "9090:9090"
+      - "9091:9091"
+    command: sleep infinity
