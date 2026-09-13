@@ -270,7 +270,10 @@ std::vector<struct pollfd> CreatServers(std::vector <server> &s, size_t &l)
         std::cerr << "webserv: error: listen failed on " << s[i].getHost() << ":" << s[i].getPort()[j] << " (" << strerror(errno) << ")" << std::endl;
         exit (1);
       }
-      std::cout << "webserv: listening on http://" << s[i].getHost() << ":" << s[i].getPort()[j] << std::endl;
+      std::string displayHost = s[i].getHost();
+      if (displayHost == "0.0.0.0")
+        displayHost = "localhost";
+      std::cout << "webserv: listening on http://" << displayHost << ":" << s[i].getPort()[j] << std::endl;
       pollfds.push_back(pfd);
       fd.push_back(pfd.fd);
       j++;
