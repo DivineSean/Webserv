@@ -1051,7 +1051,6 @@ void client:: Parse_DELETE(std::string Path)
     std::string HOMEHOMEPAGE;
     std::string buffer;
     std::string extension;
-    bool flag_auto_index = server->getAutoindex();
     std::vector <location> a = server->getLocations();
     int cgi_status;
     size_t counter = 0;
@@ -1095,7 +1094,6 @@ void client:: Parse_DELETE(std::string Path)
                 return;
             }
             homepage = it->_getIndex();
-            flag_auto_index = it->_getAutoindex();
             for (std::vector<std::string>::const_iterator ss = homepage.begin(); ss != homepage.end(); ++ss)
                 HOMEHOMEPAGE += *ss + ',';
             break;
@@ -1233,7 +1231,7 @@ void client:: GenerateBody()
     if (!str.empty())
         response_headers += "Date: " + str + "\r\n";
     //if (!map["ServerName"].empty())  servername = webserv
-        response_headers += "Server: webserv\r\n";
+    response_headers += "Server: webserv\r\n";
     // if (map["Host"][map["Host"].size() -1] == '/' && map["Request_Path"][0] == '/')
     //     map["Host"] = map["Host"].erase(map["Host"].size() -1);
     if (!map["Connection"].empty())

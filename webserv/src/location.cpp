@@ -322,12 +322,10 @@ void                        location::_setPathLocation(const std::string PathLoc
 std::string Code_PathReturn_(std::string s)
 {
     int i = 0;
-    int flag = 0;
     size_t num = 0;
     if (s != "" && !std::isdigit(s[0]))
     {
         s = "302=" + s;
-        flag = 1;
     }
     const char *str = s.c_str();
     while(str[i])
