@@ -612,9 +612,9 @@ void client:: openFileSuccess(std::string Path)
 
     
     i = 0;
-    
+
     struct stat current_dir_info;
-    
+
     if (stat(current_dir.c_str(), &current_dir_info) == 0)
     {
         
@@ -705,8 +705,8 @@ void client:: openFileSuccess(std::string Path)
                             }
                             else
                             {
-                            
-                                if (stat(std::string(entry->d_name).c_str(), &inner_path_info) == 0)
+                                std::string temp = current_dir + std::string(entry->d_name);
+                                if (stat(temp.c_str(), &inner_path_info) == 0)
                                 {
                                     if (S_ISDIR(inner_path_info.st_mode))
                                     {
@@ -715,7 +715,7 @@ void client:: openFileSuccess(std::string Path)
                                     else
                                         ls_dir += '/' +  std::string(entry->d_name) + '\n';
                                 }
-                                
+
                             }
                         }
                         
