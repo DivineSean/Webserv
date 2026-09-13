@@ -2,6 +2,7 @@
 #include "webserv.hpp"
 #include <cstdio>
 #include <ctime>
+#include <cerrno>
 #include <iomanip>
 #include <iostream>
 #include <sys/poll.h>
@@ -249,7 +250,7 @@ std::vector<struct pollfd> CreatServers(std::vector <server> &s, size_t &l)
       pfd.fd = socket(AF_INET, SOCK_STREAM, 0);
       if (pfd.fd == -1)
       {
-        std::cerr << "Error: socket creation failed" << std::endl;
+        std::cerr << "webserv: error: socket creation failed for " << s[i].getHost() << ":" << s[i].getPort()[j] << " (" << strerror(errno) << ")" << std::endl;
         exit (1);
       }
       pfd.events = POLLIN;
@@ -262,13 +263,14 @@ std::vector<struct pollfd> CreatServers(std::vector <server> &s, size_t &l)
       server.sin_addr.s_addr = inet_addr(s[i].getHost().c_str());
       if (bind(pfd.fd, (struct sockaddr *)&server, sizeof(server)) < 0)
       {
-        std::cerr << "Error: bind failed" << std::endl;
+        std::cerr << "webserv: error: bind failed on " << s[i].getHost() << ":" << s[i].getPort()[j] << " (" << strerror(errno) << ")" << std::endl;
         exit (1);
       }
       if (listen(pfd.fd, SOMAXCONN) < 0) {
-        std::cerr << "Error: listen failed" << std::endl;
+        std::cerr << "webserv: error: listen failed on " << s[i].getHost() << ":" << s[i].getPort()[j] << " (" << strerror(errno) << ")" << std::endl;
         exit (1);
       }
+      std::cout << "webserv: listening on http://" << s[i].getHost() << ":" << s[i].getPort()[j] << std::endl;
       pollfds.push_back(pfd);
       fd.push_back(pfd.fd);
       j++;
