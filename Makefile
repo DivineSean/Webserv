@@ -1,40 +1,18 @@
-NAME		:= webserv
+# ============================================================================
+#  Webserv — dev container control (workspace root)
+# ----------------------------------------------------------------------------
+#  This Makefile manages the Linux dev container. The server itself is built
+#  and run from the ./webserv folder (which has its own Makefile), inside the
+#  container.
+#
+#  Typical flow:
+#      make up            # build the image and start the container
+#      make bash          # enter it; you land in /webserv (the app)
+#          make re && ./webserv config/default.cfg
+#      make down          # stop and remove the container
+# ============================================================================
 
-CXX			:= c++
-CXXFLAGS	:= -Wall -Wextra -Werror -std=c++98
-INCFLAGS	:= -Iinclude
-
-SRCDIR		:= src
-SRCS		:= main.cpp \
-			   $(SRCDIR)/location.cpp \
-			   $(SRCDIR)/server.cpp \
-			   $(SRCDIR)/webserv.cpp \
-			   $(SRCDIR)/runServer.cpp \
-			   $(SRCDIR)/HTTP_Requests.cpp \
-			   $(SRCDIR)/MethodHandler.cpp
-
-OBJS		:= $(SRCS:.cpp=.o)
-DEPS		:= $(wildcard include/*.hpp)
-
-# ---- Build (run natively, or inside the container) ------------------------
-
-all: $(NAME)
-
-$(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(INCFLAGS) $(OBJS) -o $(NAME)
-
-%.o: %.cpp $(DEPS)
-	$(CXX) $(CXXFLAGS) $(INCFLAGS) -c $< -o $@
-
-clean:
-	rm -f $(OBJS)
-
-fclean: clean
-	rm -f $(NAME)
-
-re: fclean all
-
-# ---- Docker dev environment (run on the host) -----------------------------
+.PHONY: up bash down logs
 
 up:
 	docker compose up -d --build
@@ -47,5 +25,3 @@ down:
 
 logs:
 	docker compose logs -f
-
-.PHONY: all clean fclean re up bash down logs

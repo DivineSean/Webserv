@@ -48,7 +48,11 @@ loop built on `poll()`.
 
 ## Build & run
 
+The application lives in the [`webserv/`](webserv) folder and has its own
+Makefile. To build it natively (needs clang/`c++` and `make` on your machine):
+
 ```bash
+cd webserv
 make                        # build the ./webserv binary
 ./webserv config/default.cfg
 ```
@@ -59,21 +63,27 @@ objects and binary), `make re` (rebuild from scratch).
 Once running, open the configured host/port in a browser, e.g.
 `http://localhost:9090`.
 
+> No toolchain installed? Use the [Docker workflow](#development-with-docker)
+> below — it needs only Docker.
+
 ---
 
 ## Development with Docker
 
 The repository ships a reproducible Linux dev environment (Docker), so the
 project builds and runs the same way on any machine — Linux, macOS, or Windows
-(WSL) — with only Docker installed. The container bind-mounts the repository, so
-your edits on the host apply instantly inside it.
+(WSL) — with only Docker installed. The container bind-mounts the `webserv/`
+app folder at `/webserv`, so your edits on the host apply instantly inside it.
+
+The container is controlled from the **workspace root** (this folder) using the
+root `Makefile`:
 
 ```bash
 git clone https://github.com/DivineSean/Webserv.git
 cd Webserv
 
-make up      # build the image and start the container (repo synced to /webserv)
-make bash    # open a shell inside the container
+make up      # build the image and start the container (webserv/ synced to /webserv)
+make bash    # open a shell inside the container — you land in /webserv (the app)
 ```
 
 Then, inside the container:
@@ -91,46 +101,53 @@ Open `http://localhost:9090` on your host to reach the server.
 | `make down`  | Stop and remove the container                  |
 | `make logs`  | Follow container logs                          |
 
-These wrap Docker Compose (`docker-compose.yml` + `docker/Dockerfile`); the raw
-equivalents are `docker compose up -d --build`, `docker compose exec webserv
+These wrap Docker Compose (`docker-compose.yml` + `container/Dockerfile`); the
+raw equivalents are `docker compose up -d --build`, `docker compose exec webserv
 bash`, and `docker compose down`.
 
 > The container compiles with clang and `-std=c++17`. macOS's clang tolerates
-> the `-std=c++98` in the project Makefile, but Linux does not (the code uses
+> the `-std=c++98` in the app Makefile, but Linux does not (the code uses
 > `std::to_string`, `nullptr`, and `<filesystem>`), so the container adjusts the
-> standard transparently. See `docker/Dockerfile` for details.
+> standard transparently. See `container/Dockerfile` for details.
 
 ---
 
 ## Project structure
 
+The repository has two levels: the **workspace root** manages the dev container,
+and **`webserv/`** is the application itself.
+
 ```
-Webserv/
-├── Makefile                # builds the server
-├── main.cpp                # entry point: parse config, start the event loop
-├── include/                # headers
-│   ├── webserv.hpp         # top-level server manager + config helpers
-│   ├── server.hpp          # a virtual server (config + HTTP helpers)
-│   ├── location.hpp        # per-location configuration
-│   ├── client.hpp          # a single connection: request parse + response build
-│   ├── request.hpp         # parsed request data
-│   ├── response.hpp        # response state
-│   └── MethodHandler.hpp   # HTTP method handler hierarchy (GET/POST/DELETE)
-├── src/                    # implementations
-│   ├── webserv.cpp
-│   ├── server.cpp
-│   ├── location.cpp
-│   ├── runServer.cpp       # the poll() event loop
-│   ├── HTTP_Requests.cpp   # request parsing, routing, response generation
-│   └── MethodHandler.cpp   # concrete method handlers
-├── config/
-│   └── default.cfg         # example configuration
-├── www/                    # web root: static pages, error pages, uploads
-├── cgi-bin/                # CGI scripts
-├── template/               # example site assets
-├── docker/
-│   └── Dockerfile          # Linux dev image (clang, valgrind, python3, php, curl, siege)
-└── docker-compose.yml      # dev container: builds the image, syncs the repo
+Webserv/                        # workspace root
+├── Makefile                    # dev container control (make up / bash / down / logs)
+├── docker-compose.yml          # dev container definition (mounts webserv/ at /webserv)
+├── container/
+│   ├── Dockerfile              # Linux image (clang, valgrind, python3, php, curl, siege)
+│   └── .dockerignore
+├── README.md
+└── webserv/                    # THE APPLICATION
+    ├── Makefile                # builds the ./webserv binary
+    ├── main.cpp                # entry point: parse config, start the event loop
+    ├── include/                # headers
+    │   ├── webserv.hpp         # top-level server manager + config helpers
+    │   ├── server.hpp          # a virtual server (config + HTTP helpers)
+    │   ├── location.hpp        # per-location configuration
+    │   ├── client.hpp          # a single connection: request parse + response build
+    │   ├── request.hpp         # parsed request data
+    │   ├── response.hpp        # response state
+    │   └── MethodHandler.hpp   # HTTP method handler hierarchy (GET/POST/DELETE)
+    ├── src/                    # implementations
+    │   ├── webserv.cpp
+    │   ├── server.cpp
+    │   ├── location.cpp
+    │   ├── runServer.cpp       # the poll() event loop
+    │   ├── HTTP_Requests.cpp   # request parsing, routing, response generation
+    │   └── MethodHandler.cpp   # concrete method handlers
+    ├── config/
+    │   └── default.cfg         # example configuration
+    ├── www/                    # web root: static pages, error pages, uploads
+    ├── cgi-bin/                # CGI scripts
+    └── template/               # example site assets
 ```
 
 ---

@@ -1,10 +1,10 @@
 services:
   webserv:
-    build: ./docker
+    build: ./container
     image: webserv-dev
     container_name: webserv-dev
     volumes:
-      - ./:/webserv
+      - ./webserv:/webserv
     working_dir: /webserv
     ports:
       - "8080:8080"
