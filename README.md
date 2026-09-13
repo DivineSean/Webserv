@@ -108,7 +108,7 @@ Open `http://localhost:9090` on your host to reach the server.
 |--------------|-----------------------------------------------------|
 | `make up`    | Start the container (builds the image on first run) |
 | `make bash`  | Open a shell inside the container (no rebuild)      |
-| `make re`    | Rebuild the image and restart the container         |
+| `make re`    | Clean everything, then rebuild the image from scratch |
 | `make down`  | Stop and remove the container                       |
 | `make clean` | Remove the container, network, and image            |
 | `make logs`  | Follow the container logs                           |
