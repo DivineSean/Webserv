@@ -933,6 +933,9 @@ void  client:: requestParse(struct pollfd &p)
         }
 
         // check on Cookies
+        size_t uidPos = map["Cookie"].find("UID=");
+        if (uidPos != std::string::npos)
+            map["Cookie"] = map["Cookie"].substr(uidPos + 4, 32);
         if (!map["Cookie"].empty())
         {
             size_t i = 0;
@@ -1242,8 +1245,8 @@ void client:: GenerateBody()
        
         if (map["check_Cookie"] == "in")
         {
-            response_headers += "Set-Cookie: "  + map["Cookie_CGI"] + "\r\n";
-            
+            response_headers += "Set-Cookie: UID=" + map["Cookie_CGI"] + "; Path=/\r\n";
+
         }
         else if (map["check_Cookie"] == "out")
         {
